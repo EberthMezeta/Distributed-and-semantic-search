@@ -24,6 +24,11 @@
     justify-content: center;
 }
 
+.title-results {
+    margin-top: 0%;
+    margin-bottom: 0%;
+}
+
 .title-results h2{
     margin-top: 0%;
     margin-bottom: 0%;

@@ -3,14 +3,15 @@ class ParserJSON
 {
     public function parser_JSON_To_HTML($Array)
     {
-        $template = '<table border="1">';
+        $template = '<div class="table-responsive">';
+        $template .= '<table class="table table-bordered">';
         $template .= '<thead>
         <tr>
-          <th>Titulo</th>
-          <th>Valor original</th>
-          <th>Valor normalizado</th>
-          <th>Buscador</th>
-          <th>Enlace de descarga</th>
+          <th scope="col" >Titulo</th>
+          <th scope="col" >Valor original</th>
+          <th scope="col" >Valor normalizado</th>
+          <th scope="col" >Buscador</th>
+          <th scope="col" >Enlace de descarga</th>
         </tr>
       </thead>
       <tbody>';
@@ -25,7 +26,9 @@ class ParserJSON
          }
          $template .= '
          </tbody>
-         </table>';
+         </table>
+         </div>
+         ';
         return $template;
     }
 }
