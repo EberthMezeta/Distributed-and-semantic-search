@@ -9,8 +9,12 @@ class PLOSAPI
     public function get_Results_API($terms,$rowsNumber)
     {
         $URL = $this->URL_PLOS_API;
-        $URL = $URL."".$terms."&rows=".$rowsNumber."&fl=id,title,score";
-
+        if ($rowsNumber>0) {
+            $URL = $URL."".$terms."&rows=".$rowsNumber."&fl=id,title,score";
+        }else{
+            $URL = $URL."".$terms."&fl=id,title,score";
+        }
+       
         $objectResultsAPIService = new ResultsAPIService();
         $JSONRequest = $objectResultsAPIService ->get_Results_From_API($URL);
 

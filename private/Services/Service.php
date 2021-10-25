@@ -19,22 +19,35 @@
     $rowsNumber = sizeof($resultsArrayEuropenaAPI);
 
     $resultsArrayPLOSAPI = $objectPLOSAPI ->get_Results_API($expansedTerms ,$rowsNumber);
+    
+    if ($rowsNumber>0) {
+        $maximunScoreEuropena = $resultsArrayEuropenaAPI[0]['score'];
+        $maximunScorePLOS = $resultsArrayPLOSAPI[0]['score'] ;
+        $normalizer = $maximunScoreEuropena/$maximunScorePLOS;
 
-    $maximunScoreEuropena = $resultsArrayEuropenaAPI[0]['score'];
-    $maximunScorePLOS = $resultsArrayPLOSAPI[0]['score'] ;
-    $normalizer = $maximunScoreEuropena/$maximunScorePLOS;
-
-    for ($i=0; $i < $rowsNumber ; $i++) { 
+        for ($i=0; $i < $rowsNumber ; $i++) { 
         $resultsArrayPLOSAPI[$i]['scoreNormalized'] =  $resultsArrayPLOSAPI[$i]['scoreNormalized'] * $normalizer;
+        }
+
+        $finalResults = array_merge($resultsArrayPLOSAPI, $resultsArrayEuropenaAPI);
+ 
+        $scores = array_column($finalResults, 'scoreNormalized');
+        array_multisort($scores, SORT_DESC, $finalResults);
+
+         $ResultHTML = $objectParserJSON -> parser_JSON_To_HTML($finalResults);
+         echo $ResultHTML;
+    }else{
+        if (sizeof($resultsArrayPLOSAPI)>0) {
+            $ResultHTML = $objectParserJSON -> parser_JSON_To_HTML($resultsArrayPLOSAPI);
+            echo $ResultHTML;
+        }else{
+            echo "<h1>No se encontraron resultados</h1>";
+        }
+      
     }
 
-    $finalResults = array_merge($resultsArrayPLOSAPI, $resultsArrayEuropenaAPI);
- 
-    $scores = array_column($finalResults, 'scoreNormalized');
-    array_multisort($scores, SORT_DESC, $finalResults);
+    
 
-    $ResultHTML = $objectParserJSON -> parser_JSON_To_HTML($finalResults);
-
-    echo $ResultHTML;
+    
 
 ?>
