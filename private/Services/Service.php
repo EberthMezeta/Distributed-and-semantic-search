@@ -1,28 +1,40 @@
 <?php 
-/*
-$rawTerms = $_GET['q'];
+    require_once("../Models/ParserJSON.php");
+    require_once("../Models/QueryExpanser.php");
+    require_once("../Models/EuropenaAPI.php");
+    require_once("../Models/PLOSAPI.php");
 
+    $rawTerms = $_GET['q'];
 
-$endPoint = "https://" . $Language . ".wikipedia.org/w/api.php";
-$LocalCategory   =    $Category;
+    $rawTerms = strtolower($rawTerms);
 
-if ($LocalCategory == 'size') {
-    $LocalCategory = "relevance";
-}
+    $objectEuropenaAPI = new EuropenaAPI();
+    $objectPLOSAPI = new PLOSAPI();
+    $objectQueryExpanser = new QueryExpanser();
+    $objectParserJSON = new ParserJSON();
 
-$params = [
-    "action" => "query",
-    "list" => "search",
-    "srsearch" => $Search,
-    "srsort" => $LocalCategory,
-    "format" => "json"
-];
-*/
+    $expansedTerms = $objectQueryExpanser->get_Results_API($rawTerms);
 
-//$url = $endPoint . "?" . http_build_query($params);
-$ch = curl_init('http://api.plos.org/search?q=ADN&wt=json');
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-$output = curl_exec($ch);
-curl_close($ch);
-echo $output;
+    $resultsArrayEuropenaAPI = $objectEuropenaAPI ->get_Results_API($expansedTerms) ;
+    $rowsNumber = sizeof($resultsArrayEuropenaAPI);
+
+    $resultsArrayPLOSAPI = $objectPLOSAPI ->get_Results_API($expansedTerms ,$rowsNumber);
+
+    $maximunScoreEuropena = $resultsArrayEuropenaAPI[0]['score'];
+    $maximunScorePLOS = $resultsArrayPLOSAPI[0]['score'] ;
+    $normalizer = $maximunScoreEuropena/$maximunScorePLOS;
+
+    for ($i=0; $i < $rowsNumber ; $i++) { 
+        $resultsArrayPLOSAPI[$i]['scoreNormalized'] =  $resultsArrayPLOSAPI[$i]['scoreNormalized'] * $normalizer;
+    }
+
+    $finalResults = array_merge($resultsArrayPLOSAPI, $resultsArrayEuropenaAPI);
+ 
+    $scores = array_column($finalResults, 'scoreNormalized');
+    array_multisort($scores, SORT_DESC, $finalResults);
+
+    $ResultHTML = $objectParserJSON -> parser_JSON_To_HTML($finalResults);
+
+    echo $ResultHTML;
+
 ?>

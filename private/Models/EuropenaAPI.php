@@ -1,6 +1,5 @@
 <?php 
-  
-    require_once("./ResultsAPIService.php");
+    require_once("C:/xampp/htdocs/projects/Distributed-and-semantic-search/private/Models/ResultsAPIService.php");
 
     class EuropenaAPI
     {
